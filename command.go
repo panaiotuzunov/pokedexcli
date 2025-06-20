@@ -42,3 +42,8 @@ func commandHelp() error {
 	}
 	return nil
 }
+
+func commandMap() error {
+
+	return nil
+}

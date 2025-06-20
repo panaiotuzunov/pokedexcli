@@ -1,5 +1,8 @@
 package main
 
+import "github.com/panaiotuzunov/pokedexcli/internal/pokeapi"
+
 func main() {
-	startRepl()
+	//startRepl()
+	pokeapi.GetLocationAreas()
 }
