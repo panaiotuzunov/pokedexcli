@@ -23,6 +23,16 @@ func getCommands() map[string]cliCommand {
 			description: "Returns information about app usage",
 			callback:    commandHelp,
 		},
+		"map": {
+			name:        "Map",
+			description: "Returns the names of the next 20 location areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "Map Back",
+			description: "Returns the names of the previous 20 location areas",
+			callback:    commandMapb,
+		},
 	}
 	return supportedCommands
 }
@@ -44,6 +54,11 @@ func commandHelp() error {
 }
 
 func commandMap() error {
+
+	return nil
+}
+
+func commandMapb() error {
 
 	return nil
 }
