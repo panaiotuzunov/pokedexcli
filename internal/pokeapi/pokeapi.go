@@ -7,9 +7,14 @@ import (
 	"net/http"
 )
 
+type Config struct {
+	Previous *string
+	Next     *string
+}
+
 type LocationAreas struct {
 	Count    int     `json:"count"`
-	Next     string  `json:"next"`
+	Next     *string `json:"next"`
 	Previous *string `json:"previous"`
 	Results  []struct {
 		Name string `json:"name"`
@@ -17,8 +22,8 @@ type LocationAreas struct {
 	} `json:"results"`
 }
 
-func GetLocationAreas() error {
-	res, err := http.Get("https://pokeapi.co/api/v2/location-area?offset=20&limit=20")
+func GetLocationAreas(url string, configArg *Config) error {
+	res, err := http.Get(url)
 	if err != nil {
 		return err
 	}
@@ -34,6 +39,7 @@ func GetLocationAreas() error {
 	for _, result := range loc.Results {
 		fmt.Println(result.Name)
 	}
-	fmt.Printf("previous - %v", *loc.Previous)
+	configArg.Next = loc.Next
+	configArg.Previous = loc.Previous
 	return nil
 }

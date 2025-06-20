@@ -5,10 +5,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/panaiotuzunov/pokedexcli/internal/pokeapi"
 )
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
+
+	ConfigArg := pokeapi.Config{}
+	startUrl := "https://pokeapi.co/api/v2/location-area"
+	ConfigArg.Next = &startUrl
+	ConfigArg.Previous = nil
+
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
@@ -20,7 +28,7 @@ func startRepl() {
 		commandName := words[0]
 		command, ok := getCommands()[commandName]
 		if ok {
-			err := command.callback()
+			err := command.callback(&ConfigArg)
 			if err != nil {
 				fmt.Println(err)
 			}

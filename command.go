@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/panaiotuzunov/pokedexcli/internal/pokeapi"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*pokeapi.Config) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -37,13 +39,13 @@ func getCommands() map[string]cliCommand {
 	return supportedCommands
 }
 
-func commandExit() error {
+func commandExit(configArg *pokeapi.Config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(configArg *pokeapi.Config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println()
@@ -53,12 +55,22 @@ func commandHelp() error {
 	return nil
 }
 
-func commandMap() error {
-
+func commandMap(configArg *pokeapi.Config) error {
+	err := pokeapi.GetLocationAreas(*configArg.Next, configArg)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func commandMapb() error {
-
+func commandMapb(configArg *pokeapi.Config) error {
+	if configArg.Previous == nil {
+		fmt.Println("you're on the first page")
+		return nil
+	}
+	err := pokeapi.GetLocationAreas(*configArg.Previous, configArg)
+	if err != nil {
+		return err
+	}
 	return nil
 }
