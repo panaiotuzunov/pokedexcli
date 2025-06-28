@@ -25,12 +25,19 @@ type LocationAreas struct {
 	} `json:"results"`
 }
 
+type Pokemon struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
 func GetLocationAreas(url string, configArg *Config) error {
 	var body []byte
-	cached := false
 	if cachedData, found := configArg.Cache.Get(url); found {
 		body = cachedData
-		cached = true
 	} else {
 		res, err := http.Get(url)
 		if err != nil {
@@ -43,7 +50,6 @@ func GetLocationAreas(url string, configArg *Config) error {
 		}
 		configArg.Cache.Add(url, body)
 	}
-
 	loc := LocationAreas{}
 	if err := json.Unmarshal(body, &loc); err != nil {
 		return err
@@ -51,9 +57,33 @@ func GetLocationAreas(url string, configArg *Config) error {
 	for _, result := range loc.Results {
 		fmt.Println(result.Name)
 	}
-	fmt.Printf("using cached result: %v", cached)
-	fmt.Println()
 	configArg.Next = loc.Next
 	configArg.Previous = loc.Previous
+	return nil
+}
+
+func GetPokemonEncounters(url string, configArg *Config) error {
+	var body []byte
+	if cachedData, found := configArg.Cache.Get(url); found {
+		body = cachedData
+	} else {
+		res, err := http.Get(url)
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+		body, err = io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		configArg.Cache.Add(url, body)
+	}
+	encounters := Pokemon{}
+	if err := json.Unmarshal(body, &encounters); err != nil {
+		return err
+	}
+	for _, pokemon := range encounters.PokemonEncounters {
+		fmt.Println(pokemon.Pokemon.Name)
+	}
 	return nil
 }

@@ -31,7 +31,16 @@ func startRepl() {
 		commandName := words[0]
 		command, ok := getCommands()[commandName]
 		if ok {
-			err := command.callback(&ConfigArg)
+			if len(words)-1 != command.numArguments {
+				fmt.Printf("Command %s takes exactly %d arguments", command.name, command.numArguments)
+				fmt.Println()
+				continue
+			}
+			arg := ""
+			if len(words) > 1 {
+				arg = words[1]
+			}
+			err := command.callback(&ConfigArg, arg)
 			if err != nil {
 				fmt.Println(err)
 			}
