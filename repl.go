@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/panaiotuzunov/pokedexcli/internal/pokeapi"
+	"github.com/panaiotuzunov/pokedexcli/internal/pokecache"
 )
 
 func startRepl() {
@@ -16,6 +18,7 @@ func startRepl() {
 	startUrl := "https://pokeapi.co/api/v2/location-area"
 	ConfigArg.Next = &startUrl
 	ConfigArg.Previous = nil
+	ConfigArg.Cache = pokecache.NewCache(time.Minute * 10)
 
 	for {
 		fmt.Print("Pokedex > ")
