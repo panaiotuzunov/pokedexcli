@@ -19,6 +19,7 @@ func startRepl() {
 	ConfigArg.Next = &startUrl
 	ConfigArg.Previous = nil
 	ConfigArg.Cache = pokecache.NewCache(time.Minute * 10)
+	ConfigArg.Pokedex = map[string]pokeapi.Pokemon{}
 
 	for {
 		fmt.Print("Pokedex > ")

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/panaiotuzunov/pokedexcli/internal/pokeapi"
@@ -45,6 +46,24 @@ func getCommands() map[string]cliCommand {
 			description:  "Shows all pokemon in the selected location area. The name of the location area should be written after the explore command as an argument",
 			numArguments: 1,
 			callback:     commandExplore,
+		},
+		"catch": {
+			name:         "Catch",
+			description:  "Tries to catch a pokemon. The chance of cathing it is based on a pokemon's base experience. The name of the pokemon  should be written after the catch command as an argument",
+			numArguments: 1,
+			callback:     commandCatch,
+		},
+		"inspect": {
+			name:         "Inspect",
+			description:  "Displays the stats of a pokemon that's already been caught. The name of the pokemon  should be written after the catch command as an argument",
+			numArguments: 1,
+			callback:     commandInspect,
+		},
+		"pokedex": {
+			name:         "Pokedex",
+			description:  "Displays all pokemon that have already been caught.",
+			numArguments: 0,
+			callback:     commandPokedex,
 		},
 	}
 	return supportedCommands
@@ -94,6 +113,57 @@ func commandExplore(configArg *pokeapi.Config, arg string) error {
 	err := pokeapi.GetPokemonEncounters(baseUrl+arg, configArg)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func commandCatch(configArg *pokeapi.Config, arg string) error {
+	baseUrl := "https://pokeapi.co/api/v2/pokemon/"
+	fmt.Printf("Throwing a Pokeball at %s...\n", arg)
+	pokemon, err := pokeapi.GetPokemonStats(baseUrl+arg, configArg)
+	if err != nil {
+		return err
+	}
+	maxTreshold := 200
+	catchTreshold := maxTreshold - pokemon.BaseExperience
+	if rand.Intn(maxTreshold) < catchTreshold {
+		fmt.Printf("%s was caught!\n", arg)
+		fmt.Println("You may now inspect it with the inspect command.")
+		configArg.Pokedex[arg] = pokemon
+	} else {
+		fmt.Printf("%s escaped!\n", arg)
+	}
+	return nil
+}
+
+func commandInspect(configArg *pokeapi.Config, arg string) error {
+	pokemon, ok := configArg.Pokedex[arg]
+	if ok {
+		fmt.Printf("Name: %v\n", pokemon.Name)
+		fmt.Printf("Height: %v\n", pokemon.Height)
+		fmt.Printf("Weight: %v\n", pokemon.Weight)
+		fmt.Println("Stats:")
+		for _, stat := range pokemon.Stats {
+			fmt.Printf("	-%s: %d\n", stat.Stat.Name, stat.BaseStat)
+		}
+		fmt.Println("Types:")
+		for _, pokemonType := range pokemon.Types {
+			fmt.Printf("	- %s\n", pokemonType.Type.Name)
+		}
+	} else {
+		fmt.Println("you have not caught that pokemon")
+	}
+	return nil
+}
+
+func commandPokedex(configArg *pokeapi.Config, arg string) error {
+	if len(configArg.Pokedex) == 0 {
+		fmt.Println("Your Pokedex is empty!")
+	} else {
+		fmt.Println("Your Pokedex:")
+		for _, pokemon := range configArg.Pokedex {
+			fmt.Printf("	- %s\n", pokemon.Name)
+		}
 	}
 	return nil
 }
